@@ -11,5 +11,8 @@ library(readr)
 #data -----
 Env <- read_excel("Environmental_Data.xlsx")
 Isotope <- read_excel("Isotope_Data.xlsx")
+Joined_DF <- left_join(Env, Isotope)
+
+#Basic Plots ----
 
 
