@@ -43,3 +43,11 @@ Mesostigmata.scatter
 
 #Analysis -----
 
+view(Joined_DF)
+#plotGroupEllipses
+
+#laymanB - calculates foodweb structure - 
+# Layman 2007 - MEAN DISTANCE TO CENTROID HIGHLY IMPORTANT
+# TA value indicates tight niche space; narrow diet breadth
+#interesting- compare your ellipse to the max/min bayesian generated plot
+
