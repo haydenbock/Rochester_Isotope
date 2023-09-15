@@ -1,6 +1,8 @@
 # Package Management -----
 # install.packages(c("dplyr", "tidyverse", "vegan", "SIBER"))
 
+#install.packages("rjags")
+library(rjags)
 library(dplyr)
 library(tidyverse)
 library(vegan)
@@ -91,10 +93,12 @@ set.seed(1)
 library(SIBER)
 
 # load in the included demonstration dataset
-data("demo.siber.data")
-#
+My_SIBER_Data <- read_csv("My_SIBER_Data.csv")
+My_SIBER_Data <- as_tibble(My_SIBER_Data)
+
+
 # create the siber object
-siber.example <- createSiberObject(demo.siber.data)
+siber.example <- createSiberObject(My_SIBER_Data)
 
 
 # Or if working with your own data read in from a *.csv file, you would use
@@ -112,7 +116,7 @@ siber.example <- createSiberObject(demo.siber.data)
 
 # Create lists of plotting arguments to be passed onwards to each 
 # of the three plotting functions.
-community.hulls.args <- list(col = 1, lty = 1, lwd = 1)
+community.hulls.args <- list(col = 1, lty = 1, lwd = 1)  
 group.ellipses.args  <- list(n = 100, p.interval = 0.95, lty = 1, lwd = 2)
 group.hulls.args     <- list(lty = 2, col = "grey20")
 
@@ -200,15 +204,6 @@ plotGroupEllipses(siber.example, n = 100, p.interval = 0.95,
 # Calculate the various Layman metrics on each of the communities.
 community.ML <- communityMetricsML(siber.example) 
 print(community.ML)
-#>                  1         2
-#> dY_range  6.526633  4.617564
-#> dX_range  8.184069 10.184171
-#> TA       13.079701 12.799232
-#> CD        4.235518  4.809830
-#> MNND      4.944052  5.111483
-#> SDNND     3.526088  4.598012
-#> 
-#> 
 
 
 # options for running jags

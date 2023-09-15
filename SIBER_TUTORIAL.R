@@ -11,6 +11,9 @@ graphics.off()
 # from time to time.
 set.seed(1)
 
+install.packages("rjags")
+library(rjags)
+
 library(SIBER)
 
 # load in the included demonstration dataset
