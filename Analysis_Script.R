@@ -14,7 +14,7 @@ library(readr)
 Env <- read_excel("Environmental_Data.xlsx") 
 Isotope <- read_excel("Isotope_Data.xlsx")
 Joined_DF <- left_join(Env, Isotope)
-My_SIBER_Data <- read_csv("My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "urbanization" (1=High, 2=Low), community = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata)
+My_SIBER_Data <- read_csv("My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata), community = "urbanization" (1=High, 2=Low),
 
 #formatting data for SIBER ----
 Temp <- Joined_DF %>% select(Urban_Kmeans_Cluster, Taxa, DELTA_13C_vs_IntStandard, DELTA_15N_vs_air)
@@ -68,7 +68,6 @@ Mesostigmata.scatter
 
 
 
-view(Joined_DF)
 #plotGroupEllipses
 
 #laymanB - calculates foodweb structure - 
@@ -158,12 +157,16 @@ plotSiberObject(siber.example,
 
 
 # Calculate summary statistics for each group: TA, SEA and SEAc
+# see Layman et al. 2007 Ecology for interpretation of metrics;
+    # NR/Y-range: ∆15N Range; Distance between the two species with the most enriched and most depleted ∆15N values (i.e., max-min)
+    # CR/X-range: ∆13C Range; Distance between the two species with the most enriched and most depleted ∆13C values (i.e. max-min)
+    # TA: Total area; Convex hull area encompassed by all species in d13C–d15N bi-plot space. This represents a measure of the total amount of niche space occupied, and thus a proxy for the total extent of trophic diversity within a food web.
+    # CD: Mean distance to centroid; Average Euclidean distance of each species to the d13C–d15N centroid, where the centroid is the mean d13C and d15N value for all species in the food web. This metric provides a measure of the average degree of trophic diversity within a food web.
+    # NND: Mean nearest neighbor distance; Mean of the Euclidean distances to each species’ nearest neighbor in bi-plot space, and thus a measure of the overall density of species packing. Food webs with a large proportion of species characterized by similar trophic ecologies will exhibit a smaller NND (increased trophic redundancy) than a web in which species are, on average, more divergent in terms of their trophic niche.
+    # SDNND: Standard deviation of nearest neighbor distance;  A measure of the evenness of species packing in bi-plot space that is less influenced than NND by sample size. Low SDNND values suggest more even distribution of trophic niches.
+
 group.ML <- groupMetricsML(siber.example)
 print(group.ML)
-#>            1.1       1.2       1.3       2.1       2.2       2.3
-#> TA   21.924922 10.917715 17.945127 3.0714363 11.476354 1.4818061
-#> SEA   5.783417  3.254484  5.131601 0.8623300  3.458824 0.4430053
-#> SEAc  5.989967  3.370715  5.314872 0.8931275  3.582354 0.4588269
 
 
 # You can add more ellipses by directly calling plot.group.ellipses()
@@ -203,13 +206,15 @@ plotGroupEllipses(siber.example, n = 100, p.interval = 0.95,
 
 # Calculate the various Layman metrics on each of the communities.
 community.ML <- communityMetricsML(siber.example) 
+
+#print out of layman metrics
 print(community.ML)
 
 
 # options for running jags
 parms <- list()
-parms$n.iter <- 2 * 10^4   # number of iterations to run the model for
-parms$n.burnin <- 1 * 10^3 # discard the first set of values
+parms$n.iter <- 2 * 10^5   # number of iterations to run the model for
+parms$n.burnin <- 1 * 10^4 # discard the first set of values
 parms$n.thin <- 10     # thin the posterior by this many
 parms$n.chains <- 2        # run this many chains
 
@@ -223,6 +228,7 @@ priors$tau.mu <- 1.0E-3
 # on the covariance matrix Sigma, and a vague normal prior on the 
 # means. Fitting is via the JAGS method.
 
+ellipses.posterior <- siberMVN(siber.example, parms, priors)
 
 # The posterior estimates of the ellipses for each group can be used to
 # calculate the SEA.B for each group.
@@ -267,7 +273,7 @@ layman.B <- bayesianLayman(mu.post)
 # Visualise the first community
 # --------------------------------------
 siberDensityPlot(layman.B[[1]], xticklabels = colnames(layman.B[[1]]), 
-                 bty="L", ylim = c(0,20))
+                 bty="L", ylim = c(0,6))
 
 # add the ML estimates (if you want). Extract the correct means 
 # from the appropriate array held within the overall array of means.
@@ -282,7 +288,7 @@ points(1:6, comm1.layman.ml$metrics, col = "red", pch = "x", lwd = 2)
 # Visualise the second community
 # --------------------------------------
 siberDensityPlot(layman.B[[2]], xticklabels = colnames(layman.B[[2]]), 
-                 bty="L", ylim = c(0,20))
+                 bty="L", ylim = c(0,6))
 
 # add the ML estimates. (if you want) Extract the correct means 
 # from the appropriate array held within the overall array of means.
@@ -302,7 +308,7 @@ par(mfrow=c(1,1))
 
 siberDensityPlot(cbind(layman.B[[1]][,"TA"], layman.B[[2]][,"TA"]),
                  xticklabels = c("Community 1", "Community 2"), 
-                 bty="L", ylim = c(0,20),
+                 bty="L", ylim = c(0,3),
                  las = 1,
                  ylab = "TA - Convex Hull Area",
                  xlab = "")

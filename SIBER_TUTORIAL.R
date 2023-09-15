@@ -11,7 +11,7 @@ graphics.off()
 # from time to time.
 set.seed(1)
 
-install.packages("rjags")
+#install.packages("rjags")
 library(rjags)
 
 library(SIBER)
@@ -124,6 +124,8 @@ plotGroupEllipses(siber.example, n = 100, p.interval = 0.95,
 
 
 # Calculate the various Layman metrics on each of the communities.
+#see Layman et al. 2007 Ecology
+
 community.ML <- communityMetricsML(siber.example) 
 print(community.ML)
 #>                  1         2
@@ -158,6 +160,9 @@ priors$tau.mu <- 1.0E-3
 # The posterior estimates of the ellipses for each group can be used to
 # calculate the SEA.B for each group.
 SEA.B <- siberEllipses(ellipses.posterior)
+
+SEA.B <- siberEllipses(ellipses.posterior)
+
 
 siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
                  xlab = c("Community | Group"),
