@@ -20,8 +20,10 @@ My_SIBER_Data <- read_csv("My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N
 Temp <- Joined_DF %>% select(Urban_Kmeans_Cluster, Taxa, DELTA_13C_vs_IntStandard, DELTA_15N_vs_air)
 My_SIBER_Data <- Temp %>% rename(`iso1` = DELTA_13C_vs_IntStandard,
                                  `iso2` = DELTA_15N_vs_air,
-                                  group = Urban_Kmeans_Cluster,
-                                  community = Taxa)
+                                  community = Urban_Kmeans_Cluster,
+                                  group = Taxa)
+
+My_SIBER_Data <- My_SIBER_Data %>% relocate("iso1", "iso2", "group", "community")
 
 My_SIBER_Data$group <- recode(My_SIBER_Data$group, 
                               High_Urban = "1",
