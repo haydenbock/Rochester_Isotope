@@ -1,0 +1,94 @@
+---
+title: "Prelim_Isotope_Data"
+author: "Hayden Bock"
+date: "2023-09-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# Package Management -----
+# install.packages(c("dplyr", "tidyverse", "vegan", "SIBER"))
+
+#install.packages("rjags")
+library(rjags)
+library(dplyr)
+library(tidyverse)
+library(vegan)
+library(SIBER)
+library(readxl)
+library(readr)
+
+```
+
+
+
+```{r}
+# remove previously loaded items from the current environment and remove previous graphics.
+rm(list=ls())
+graphics.off()
+
+# Here, I set the seed each time so that the results are comparable. 
+# This is useful as it means that anyone that runs your code, *should*
+# get the same results as you, although random number generators change 
+# from time to time.
+set.seed(1)
+
+library(SIBER)
+
+# load in the included demonstration dataset
+My_SIBER_Data <- read_csv("My_SIBER_Data.csv")
+My_SIBER_Data <- as_tibble(My_SIBER_Data)
+
+# create the siber object
+siber.example <- createSiberObject(My_SIBER_Data)
+```
+
+```{r}
+# Create lists of plotting arguments to be passed onwards to each 
+# of the three plotting functions.
+community.hulls.args <- list(col = 1, lty = 1, lwd = 1)  
+group.ellipses.args  <- list(n = 100, p.interval = 0.95, lty = 1, lwd = 2)
+group.hulls.args     <- list(lty = 2, col = "grey20")
+
+
+
+par(mfrow=c(1,1))
+plotSiberObject(siber.example,
+                ax.pad = 2, 
+                hulls = F, community.hulls.args = community.hulls.args, 
+                ellipses = T, group.ellipses.args = group.ellipses.args,
+                group.hulls = T, group.hulls.args = group.hulls.args,
+                bty = "L",
+                iso.order = c(1,2),
+                xlab = expression({delta}^13*C~'\u2030'),
+                ylab = expression({delta}^15*N~'\u2030')
+)
+
+
+par(mfrow=c(1,1))
+
+community.hulls.args <- list(col = 1, lty = 1, lwd = 1)
+group.ellipses.args  <- list(n = 100, p.interval = 0.95, lty = 1, lwd = 2)
+group.hull.args      <- list(lty = 2, col = "grey20")
+
+# this time we will make the points a bit smaller by 
+# cex = 0.5
+plotSiberObject(siber.example,
+                ax.pad = 2, 
+                hulls = F, community.hulls.args, 
+                ellipses = F, group.ellipses.args,
+                group.hulls = F, group.hull.args,
+                bty = "L",
+                iso.order = c(1,2),
+                xlab=expression({delta}^13*C~'\u2030'),
+                ylab=expression({delta}^15*N~'\u2030'),
+                cex = 0.5
+)
+
+```
+
+```{r}
+
+```
+
