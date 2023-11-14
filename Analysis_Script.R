@@ -25,12 +25,12 @@ My_SIBER_Data <- Temp %>% rename(`iso1` = DELTA_13C_vs_IntStandard,
 
 My_SIBER_Data <- My_SIBER_Data %>% relocate("iso1", "iso2", "group", "community")
 
-My_SIBER_Data$group <- recode(My_SIBER_Data$group, High_Urban = "1", Low_Urban = "2")
+#My_SIBER_Data$group <- recode(My_SIBER_Data$group, High_Urban = "1", Low_Urban = "2")
 
-My_SIBER_Data$community <- recode(My_SIBER_Data$community,Oribatid = "1",Collembola = "2", Mesostigmata = "3")
+#My_SIBER_Data$community <- recode(My_SIBER_Data$community,Oribatid = "1",Collembola = "2", Mesostigmata = "3")
 
 
-#write_csv(My_SIBER_Data, "My_SIBER_Data.csv")
+write_csv(My_SIBER_Data, "My_SIBER_Data.csv")
 
 
 #Basic Visualization ----
