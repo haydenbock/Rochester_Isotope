@@ -24,6 +24,28 @@ library(readr)
 
   
 # Traditional Stats for isotopes----
+
+#analyze by urban group only  
+  #significant difference in ∆C -> p = 0.0131
+  UrbanAOV_C <- aov(iso1~community, data = My_SIBER_Data) #iso1 = ∆C 
+  summary(UrbanAOV_C)
+  
+  #no significant difference in ∆N -> p = 0.821
+  UrbanAOV_N <- aov(iso2~community, data = My_SIBER_Data) #iso1 = ∆C 
+  summary(UrbanAOV_N)
+
+  
+#analyze by urban group and taxa 
+  #urban community is significant, but no difference in taxa or interaction.
+  InteractionAOV_C <- aov(iso1~community*group, data = My_SIBER_Data) #iso1 = ∆C 
+  summary(InteractionAOV_C)
+  
+  #no difference in urbanization, but significantly different by taxa. no interaction.
+  InteractionAOV_N <- aov(iso2~community*group, data = My_SIBER_Data) #iso1 = ∆C 
+  summary(InteractionAOV_N)
+  
+  
+  
   
 # SIBER ANALYSIS ----
   
