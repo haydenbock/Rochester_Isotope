@@ -113,7 +113,7 @@ library(viridis)
   
   
   par(mfrow=c(1,1))
-  plotSiberObject(siber.example,
+plotSiberObject(siber.example,
                   ax.pad = 2, 
                   hulls = F, community.hulls.args = community.hulls.args, 
                   ellipses = T, group.ellipses.args = group.ellipses.args,
@@ -123,7 +123,7 @@ library(viridis)
                   xlab = expression({delta}^13*C~'\u2030'),
                   ylab = expression({delta}^15*N~'\u2030')
   )
-  
+
   
   par(mfrow=c(1,1))
   
@@ -160,7 +160,7 @@ library(viridis)
   
   group.ML <- groupMetricsML(siber.example)
   print(group.ML)
-  
+  summary(group.ML)
   
   # You can add more ellipses by directly calling plot.group.ellipses()
   # Add an additional p.interval % prediction ellilpse
@@ -220,6 +220,7 @@ library(viridis)
   # fit the ellipses which uses an Inverse Wishart prior
   # on the covariance matrix Sigma, and a vague normal prior on the 
   # means. Fitting is via the JAGS method.
+  
   
   ellipses.posterior <- siberMVN(siber.example, parms, priors)
   
