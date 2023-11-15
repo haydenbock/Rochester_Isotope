@@ -52,7 +52,7 @@ library(viridis)
   summary(InteractionAOV_N)
   
   
-#Tradittional stats plot ---- 
+# Tradittional stats plot ---- 
   
   # Plot ∆C
   My_SIBER_Data %>%
