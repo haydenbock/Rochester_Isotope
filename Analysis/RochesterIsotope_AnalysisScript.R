@@ -17,10 +17,10 @@ library(readxl)
 library(readr)
 
 # Data Import -----
-  Env <- read_excel("Environmental_Data.xlsx") 
-  Isotope <- read_excel("Isotope_Data.xlsx")
+  Env <- read_excel("Analysis/Environmental_Data.xlsx") 
+  Isotope <- read_excel("Analysis/Isotope_Data.xlsx")
   Joined_DF <- left_join(Env, Isotope)
-  My_SIBER_Data <- read_csv("My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata), community = "urbanization" (1=High, 2=Low),
+  My_SIBER_Data <- read_csv("Analysis/My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata), community = "urbanization" (1=High, 2=Low),
 
   
 # Traditional Stats for isotopes----
@@ -63,7 +63,7 @@ library(readr)
 
   
   # load in the included demonstration dataset
-  My_SIBER_Data <- read_csv("My_SIBER_Data.csv")
+  My_SIBER_Data <- read_csv("Analysis/My_SIBER_Data.csv")
   My_SIBER_Data <- as_tibble(My_SIBER_Data)
   
   
