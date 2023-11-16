@@ -66,10 +66,13 @@ library(systemfonts)
   #urban community is significant, but no difference in taxa or interaction.
   InteractionAOV_C <- aov(iso1~community*group, data = My_SIBER_Data) #iso1 = ∆C 
   summary(InteractionAOV_C)
+  TukeyHSD(InteractionAOV_C)
   
   #no difference in urbanization, but significantly different by taxa. no interaction.
   InteractionAOV_N <- aov(iso2~community*group, data = My_SIBER_Data) #iso1 = ∆C 
   summary(InteractionAOV_N)
+  TukeyHSD(InteractionAOV_N)
+  
   
   
   Collembola_Data <-My_SIBER_Data %>% 
