@@ -13,6 +13,7 @@
 #install.packages("ggridges")
 #install.packages("ggbeeswarm")
 #install.packages("gghalves")
+#install.packages("agricolae")
 
 
 
@@ -33,7 +34,8 @@ library(ggdist)        ## halfeye plots
 library(ggridges)      ## ridgeline plots
 library(ggbeeswarm)    ## beeswarm plots
 library(gghalves)      ## off-set jitter
-library(systemfonts)   
+library(systemfonts)
+library(agricolae)
 
 
 # Data Import -----
@@ -67,11 +69,13 @@ library(systemfonts)
   InteractionAOV_C <- aov(iso1~community*group, data = My_SIBER_Data) #iso1 = ∆C 
   summary(InteractionAOV_C)
   TukeyHSD(InteractionAOV_C)
-  
+
   #no difference in urbanization, but significantly different by taxa. no interaction.
   InteractionAOV_N <- aov(iso2~community*group, data = My_SIBER_Data) #iso1 = ∆C 
   summary(InteractionAOV_N)
   TukeyHSD(InteractionAOV_N)
+
+  
   
   
   
@@ -81,10 +85,10 @@ library(systemfonts)
     pivot_wider(names_from = My_SIBER_Data$community, values)
   
   
-# Tradittional stats plot ---- 
+# Traditional stats plot ---- 
 
 # Plot isotope breadth in collembola
-  Collembola_Data <-My_SIBER_Data %>% 
+ Collembola_Data <-My_SIBER_Data %>% 
     filter(group == "Collembola") %>% 
     select(-group) 
   
@@ -543,7 +547,26 @@ plotSiberObject(siber.example,
   
   
 # SIBER ANALYSIS VISUALIZATION -----
-
+ #Visualize SEA using ggplot. 
+  SEA_DF <- as.data.frame(SEA.B) %>% rename(High_Urban.Collembola = V1,
+                             High_Urban.Oribatida = V2,
+                             High_Urban.Mesostigmata = V3,
+                             Low_Urban.Oribatida = V4,
+                             Low_Urban.Mesostigmata = V5,
+                             Low_Urban.Collembola = V6)
+  
+ SEA_DF_bind <- stack(SEA_DF[1:6])
+ SEA_DF_bind$ind <- as.character(SEA_DF_bind$ind )
+ 
+ #####
+ ##### figure out how to reverse concatenate treatment cell to make graph
+ ##### then use the interval strip box plot https://z3tt.github.io/beyond-bar-and-box-plots/
+ #####
+ #####
+  
+  
+  
+  
   # Visualise the first community
   siberDensityPlot(layman.B[[1]], xticklabels = colnames(layman.B[[1]]), 
                    bty="L", ylim = c(0,6))
@@ -603,12 +626,124 @@ plotSiberObject(siber.example,
   write_csv(MaxLikelihood, "ML.mean.csv")
   
   
+#Figure 2 - showing total community envelope  
+  Urban_Color_Palette <- c("#BABABA", "#B8E186")
   
-  
-  ggscatter(My_SIBER_Data, x = "iso1", y = "iso2",
+  TempFigure2 <- ggscatter(My_SIBER_Data, x = "iso1", y = "iso2", color = "community",
             ellipse = TRUE, mean.point = TRUE,
             star.plot = TRUE)
   
+  Figure2 <- TempFigure2+
+    theme_classic() + 
+    theme(legend.position = "none",
+          axis.title.y = element_text(size = 16),
+          axis.title.x = element_text(size = 16),
+          axis.text.x = element_text(face="bold", 
+                                     size=14),
+          axis.text.y = element_text(face="bold", 
+                                     size=14))+
+    scale_color_manual(values = Urban_Color_Palette)+ 
+    scale_fill_manual(values = Urban_Color_Palette) + 
+    ylab("∆15N (‰)") + xlab("∆13C (‰)")
+  
+  ggsave(filename = "Figures/figureTwo.jpg", width = 6, height = 6, device='jpeg', dpi=400)
+  
+  
+  
+#Figure 3 - showing trophic envelope of each individual taxa
+  
+  #isolate data frames by taxa
+  Collembola_Data <-My_SIBER_Data %>% 
+    filter(group == "Collembola") %>% 
+    select(-group) 
+  
+  Oribatida_Data <-My_SIBER_Data %>% 
+    filter(group == "Oribatida") %>% 
+    select(-group)
+  
+  Mesostigmata_Data <-My_SIBER_Data %>% 
+    filter(group == "Mesostigmata") %>% 
+    select(-group)
+  
+  
+      #Plot collembola
+        TempFigure3_Col <- ggscatter(Collembola_Data, x = "iso1", y = "iso2", color = "community",
+                                 ellipse = TRUE, mean.point = TRUE,
+                                 star.plot = TRUE) + 
+                                  theme_classic() + 
+                                  theme(legend.position = "none",
+                                        axis.title.y = element_text(size = 16),
+                                        axis.title.x = element_text(size = 16),
+                                        axis.text.x = element_text(face="bold", 
+                                                                   size=14),
+                                        axis.text.y = element_text(face="bold", 
+                                                                   size=14))+
+                                  scale_color_manual(values = Urban_Color_Palette)+ 
+                                  scale_fill_manual(values = Urban_Color_Palette) + 
+                                  ylab("∆15N (‰)") + xlab("∆13C (‰)")
+      #Plot Oribatida  
+        TempFigure3_Orib <- ggscatter(Oribatida_Data, x = "iso1", y = "iso2", color = "community",
+                                     ellipse = TRUE, mean.point = TRUE,
+                                     star.plot = TRUE) + 
+                                      theme_classic() + 
+                                      theme(legend.position = "none",
+                                            axis.title.y = element_text(size = 16),
+                                            axis.title.x = element_text(size = 16),
+                                            axis.text.x = element_text(face="bold", 
+                                                                       size=14),
+                                            axis.text.y = element_text(face="bold", 
+                                                                       size=14))+
+                                      scale_color_manual(values = Urban_Color_Palette)+ 
+                                      scale_fill_manual(values = Urban_Color_Palette) + 
+                                      ylab("∆15N (‰)") + xlab("∆13C (‰)")
+      #Plot Mesostigmata 
+        TempFigure3_Meso <- ggscatter(Mesostigmata_Data, x = "iso1", y = "iso2", color = "community",
+                                      ellipse = TRUE, mean.point = TRUE,
+                                      star.plot = TRUE) + 
+                                        theme_classic() + 
+                                        theme(legend.position = "none",
+                                              axis.title.y = element_text(size = 16),
+                                              axis.title.x = element_text(size = 16),
+                                              axis.text.x = element_text(face="bold", 
+                                                                         size=14),
+                                              axis.text.y = element_text(face="bold", 
+                                                                         size=14))+
+                                        scale_color_manual(values = Urban_Color_Palette)+ 
+                                        scale_fill_manual(values = Urban_Color_Palette) + 
+                                        ylab("∆15N (‰)") + xlab("∆13C (‰)")
+                                
+        
+  
+  
+#
+ # Combine Individual plots to show entire picture.
+#
+  
+  Figure3 <- ggarrange(TempFigure3_Col,TempFigure3_Orib,TempFigure3_Meso,
+                       labels = c("A", "B", "C"),
+                       common.legend = TRUE, legend = "right")
+  
+  ggsave(filename = "Figures/figureThree.jpg", width = 8, height = 8, device='jpeg', dpi=400)
+  
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+    
+  
+  #
+
 # [WORK IN PROGRESS] Calculate Isotope Diversity Indices based on Cucherousset & Villeger script/Paper ----
 
   #load libraries
