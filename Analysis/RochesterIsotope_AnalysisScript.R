@@ -16,7 +16,7 @@
 
 
 
-
+library(ggpubr)
 library(rjags)
 library(dplyr)
 library(vegan)
@@ -276,7 +276,7 @@ Meso_N <-
                                    size=14))+
   scale_color_manual(values = Urban_Color_Palette)+ 
   scale_fill_manual(values = Urban_Color_Palette) + 
-  ylab("∆15N (‰)") + xlab("") + ylim(0,8)
+  ylab("∆15N (‰)") + xlab("") + ylim(0,12)
 
 
 
@@ -284,12 +284,16 @@ Meso_N <-
 # Combine Individual plots to show entire picture.
 #
 
+Figure1 <- ggarrange(Col_C,
+          Orib_C,
+          Meso_C,
+          Col_N,
+          Orib_N,
+          Meso_N,
+  labels = c("A", "B", "C", "D", "E", "F"),
+  common.legend = TRUE, legend = "bottom")
 
-
-
-
-
-
+ggsave(filename = "Figures/figureone.jpg", width = 12, height = 8, device='jpeg', dpi=400)
 
 
 
@@ -361,6 +365,7 @@ Meso_N <-
   # create the siber object
   siber.example <- createSiberObject(My_SIBER_Data)
   
+
   
   # Or if working with your own data read in from a *.csv file, you would use
   # This *.csv file is included with this package. To find its location
@@ -582,6 +587,24 @@ plotSiberObject(siber.example,
   
   #work in progress
   
+  
+# SIBER ggplot cluster figure----
+  
+  #extract mean likelihood and covariance from siber object 
+  MaxLikelihood <- siber.example$ML.mu
+  Cov <- siber.example$ML.cov
+  Cov <- as.data.frame(Cov)
+  MaxLikelihood <- as.data.frame(MaxLikelihood)
+  
+  write_csv(Cov, "MLCV.csv")
+  write_csv(MaxLikelihood, "ML.mean.csv")
+  
+  
+  
+  
+  ggscatter(My_SIBER_Data, x = "iso1", y = "iso2",
+            ellipse = TRUE, mean.point = TRUE,
+            star.plot = TRUE)
   
 # [WORK IN PROGRESS] Calculate Isotope Diversity Indices based on Cucherousset & Villeger script/Paper ----
 
