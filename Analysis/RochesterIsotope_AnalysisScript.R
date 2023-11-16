@@ -8,22 +8,39 @@
 # install.packages(c("dplyr", "tidyverse", "vegan", "SIBER"))
 
 #install.packages("rjags")
+#install.packages("rcartocolor")
+#install.packages("ggdist")
+#install.packages("ggridges")
+#install.packages("ggbeeswarm")
+#install.packages("gghalves")
+
+
+
+
 library(rjags)
 library(dplyr)
-library(tidyverse)
 library(vegan)
 library(SIBER)
 library(readxl)
 library(readr)
 library(tidyverse)
 library(viridis)
+library(tidyverse)     
+library(colorspace)    ## adjust colors
+library(rcartocolor)   ## Carto palettes
+library(ggforce)       ## sina plots
+library(ggdist)        ## halfeye plots
+library(ggridges)      ## ridgeline plots
+library(ggbeeswarm)    ## beeswarm plots
+library(gghalves)      ## off-set jitter
+library(systemfonts)   
 
 
 # Data Import -----
-  Env <- read_excel("Analysis/Environmental_Data.xlsx") 
-  Isotope <- read_excel("Analysis/Isotope_Data.xlsx")
+  Env <- read_excel("Environmental_Data.xlsx") 
+  Isotope <- read_excel("Isotope_Data.xlsx")
   Joined_DF <- left_join(Env, Isotope)
-  My_SIBER_Data <- read_csv("Analysis/My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata), community = "urbanization" (1=High, 2=Low),
+  My_SIBER_Data <- read_csv("My_SIBER_Data.csv") #iso1 == "∆13C", iso2 = "∆15N", group = "taxa" (1=oribatid, 2=collembola, 3=mesostigmata), community = "urbanization" (1=High, 2=Low),
 
 # Scale/Standardize data based on Cucherousset & Villeger ----
   Scaled_Data <- My_SIBER_Data %>% 
@@ -31,6 +48,9 @@ library(viridis)
                     mutate(C_Scaled = (iso1-min(iso1))/(max(iso1)-min(iso1)))
   
 # Traditional Stats for isotopes----
+
+  
+
 
 #analyze by urban group only  
   #significant difference in ∆C -> p = 0.0131
@@ -52,20 +72,271 @@ library(viridis)
   summary(InteractionAOV_N)
   
   
+  Collembola_Data <-My_SIBER_Data %>% 
+    filter(group == "Collembola") %>% 
+    select(-group) %>% 
+    pivot_wider(names_from = My_SIBER_Data$community, values)
+  
+  
 # Tradittional stats plot ---- 
+
+# Plot isotope breadth in collembola
+  Collembola_Data <-My_SIBER_Data %>% 
+    filter(group == "Collembola") %>% 
+    select(-group) 
   
-  # Plot ∆C
+  Urban_Color_Palette <- c("#BABABA", "#B8E186")
+    
+Col_C <- 
+  Collembola_Data %>%
+    ggplot(aes(x=community, y=iso1, fill = community, color = community)) +
+    geom_boxplot(
+      width = .2, fill = "white",
+      size = 1.5, outlier.shape = NA) +
+  
+    ggdist::stat_halfeye(
+      adjust = .33, ## bandwidth
+      width = .67, 
+      color = NA, ## remove slab interval
+      position = position_nudge(x = .15)) +
+  
+    gghalves::geom_half_point(
+      side = "l", 
+      range_scale = .3, 
+      alpha = .5, size = 3) + 
+  
+              theme_classic() + 
+              theme(legend.position = "none",
+                    axis.title.y = element_text(size = 16),
+                    axis.text.x = element_text(face="bold", 
+                                               size=14),
+                    axis.text.y = element_text(face="bold", 
+                                               size=14))+
+              scale_color_manual(values = Urban_Color_Palette)+ 
+              scale_fill_manual(values = Urban_Color_Palette) + 
+              ylab("∆13C (‰)") + xlab("")
+
+Col_N <- 
+  Collembola_Data %>%
+  ggplot(aes(x=community, y=iso2, fill = community, color = community)) +
+  geom_boxplot(
+    width = .2, fill = "white",
+    size = 1.5, outlier.shape = NA) +
+  
+  ggdist::stat_halfeye(
+    adjust = .33, ## bandwidth
+    width = .67, 
+    color = NA, ## remove slab interval
+    position = position_nudge(x = .15)) +
+  
+  gghalves::geom_half_point(
+    side = "l", 
+    range_scale = .3, 
+    alpha = .5, size = 3) + 
+  
+  theme_classic() + 
+  theme(legend.position = "none",
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(face="bold", 
+                                   size=14),
+        axis.text.y = element_text(face="bold", 
+                                   size=14))+
+  scale_color_manual(values = Urban_Color_Palette)+ 
+  scale_fill_manual(values = Urban_Color_Palette) + 
+  ylab("∆15N (‰)") + xlab("") + ylim(0,8)
+
+              
+            
+# Plot isotope breadth in Oribatida
+Oribatida_Data <-My_SIBER_Data %>% 
+  filter(group == "Oribatid") %>% 
+  select(-group) 
+
+Urban_Color_Palette <- c("#BABABA", "#B8E186")
+
+Orib_C <- 
+  Oribatida_Data %>%
+  ggplot(aes(x=community, y=iso1, fill = community, color = community)) +
+  geom_boxplot(
+    width = .2, fill = "white",
+    size = 1.5, outlier.shape = NA) +
+  
+  ggdist::stat_halfeye(
+    adjust = .33, ## bandwidth
+    width = .67, 
+    color = NA, ## remove slab interval
+    position = position_nudge(x = .15)) +
+  
+  gghalves::geom_half_point(
+    side = "l", 
+    range_scale = .3, 
+    alpha = .5, size = 3) + 
+  
+  theme_classic() + 
+  theme(legend.position = "none",
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(face="bold", 
+                                   size=14),
+        axis.text.y = element_text(face="bold", 
+                                   size=14))+
+  scale_color_manual(values = Urban_Color_Palette)+ 
+  scale_fill_manual(values = Urban_Color_Palette) + 
+  ylab("∆13C (‰)") + xlab("")
+
+Orib_N <- 
+  Oribatida_Data %>%
+  ggplot(aes(x=community, y=iso2, fill = community, color = community)) +
+  geom_boxplot(
+    width = .2, fill = "white",
+    size = 1.5, outlier.shape = NA) +
+  
+  ggdist::stat_halfeye(
+    adjust = .33, ## bandwidth
+    width = .67, 
+    color = NA, ## remove slab interval
+    position = position_nudge(x = .15)) +
+  
+  gghalves::geom_half_point(
+    side = "l", 
+    range_scale = .3, 
+    alpha = .5, size = 3) + 
+  
+  theme_classic() + 
+  theme(legend.position = "none",
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(face="bold", 
+                                   size=14),
+        axis.text.y = element_text(face="bold", 
+                                   size=14))+
+  scale_color_manual(values = Urban_Color_Palette)+ 
+  scale_fill_manual(values = Urban_Color_Palette) + 
+  ylab("∆15N (‰)") + xlab("") + ylim(0,8)
+
+
+# Plot isotope breadth in Mesostigmata
+Mesostigmata_Data <-My_SIBER_Data %>% 
+  filter(group == "Mesostigmata") %>% 
+  select(-group) 
+
+Urban_Color_Palette <- c("#BABABA", "#B8E186")
+
+Meso_C <- 
+  Mesostigmata_Data %>%
+  ggplot(aes(x=community, y=iso1, fill = community, color = community)) +
+  geom_boxplot(
+    width = .2, fill = "white",
+    size = 1.5, outlier.shape = NA) +
+  
+  ggdist::stat_halfeye(
+    adjust = .33, ## bandwidth
+    width = .67, 
+    color = NA, ## remove slab interval
+    position = position_nudge(x = .15)) +
+  
+  gghalves::geom_half_point(
+    side = "l", 
+    range_scale = .3, 
+    alpha = .5, size = 3) + 
+  
+  theme_classic() + 
+  theme(legend.position = "none",
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(face="bold", 
+                                   size=14),
+        axis.text.y = element_text(face="bold", 
+                                   size=14))+
+  scale_color_manual(values = Urban_Color_Palette)+ 
+  scale_fill_manual(values = Urban_Color_Palette) + 
+  ylab("∆13C (‰)") + xlab("")
+
+Meso_N <- 
+  Mesostigmata_Data %>%
+  ggplot(aes(x=community, y=iso2, fill = community, color = community)) +
+  geom_boxplot(
+    width = .2, fill = "white",
+    size = 1.5, outlier.shape = NA) +
+  
+  ggdist::stat_halfeye(
+    adjust = .33, ## bandwidth
+    width = .67, 
+    color = NA, ## remove slab interval
+    position = position_nudge(x = .15)) +
+  
+  gghalves::geom_half_point(
+    side = "l", 
+    range_scale = .3, 
+    alpha = .5, size = 3) + 
+  
+  theme_classic() + 
+  theme(legend.position = "none",
+        axis.title.y = element_text(size = 16),
+        axis.text.x = element_text(face="bold", 
+                                   size=14),
+        axis.text.y = element_text(face="bold", 
+                                   size=14))+
+  scale_color_manual(values = Urban_Color_Palette)+ 
+  scale_fill_manual(values = Urban_Color_Palette) + 
+  ylab("∆15N (‰)") + xlab("") + ylim(0,8)
+
+
+
+#
+# Combine Individual plots to show entire picture.
+#
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  
+  
+  
+  
+  #community wide ∆C
   My_SIBER_Data %>%
-    ggplot(aes(x=community, y=iso1, fill=group)) +
-    geom_boxplot() +
-    geom_point(position=position_dodge(width=0.75),aes(group=group))
+    ggplot(aes(x=group, y=iso1, fill = group, color = group)) +
+    geom_boxplot(
+      width = .2, fill = "white",
+      size = 1.5, outlier.shape = NA
+    ) +
+    ggdist::stat_halfeye(
+      adjust = .33, ## bandwidth
+      width = .67, 
+      color = NA, ## remove slab interval
+      position = position_nudge(x = .15)
+    ) +
+    gghalves::geom_half_point(
+      side = "l", 
+      range_scale = .3, 
+      alpha = .5, size = 3) + facet_wrap(~community)
+      
   
-  # Plot ∆N
+  # Community wide ∆N
   My_SIBER_Data %>%
-    ggplot(aes(x=community, y=iso2, fill=group)) +
-    geom_boxplot() +
-    geom_point(position=position_dodge(width=0.75),aes(group=group))
-  
+    ggplot(aes(x=group, y=iso2, fill = group, color = group)) +
+    geom_boxplot(
+      width = .2, fill = "white",
+      size = 1.5, outlier.shape = NA
+    ) +
+    ggdist::stat_halfeye(
+      adjust = .33, ## bandwidth
+      width = .67, 
+      color = NA, ## remove slab interval
+      position = position_nudge(x = .15)
+    ) +
+    gghalves::geom_half_point(
+      side = "l", 
+      range_scale = .3, 
+      alpha = .5, size = 3) + facet_wrap(~community)
   
 # SIBER ANALYSIS ----
   
@@ -83,7 +354,7 @@ library(viridis)
 
   
   # load in the included demonstration dataset
-  My_SIBER_Data <- read_csv("Analysis/My_SIBER_Data.csv")
+  My_SIBER_Data <- read_csv("My_SIBER_Data.csv")
   My_SIBER_Data <- as_tibble(My_SIBER_Data)
   
   
@@ -112,7 +383,7 @@ library(viridis)
   
   
   
-  par(mfrow=c(1,1))
+par(mfrow=c(1,1))
 plotSiberObject(siber.example,
                   ax.pad = 2, 
                   hulls = F, community.hulls.args = community.hulls.args, 
@@ -164,12 +435,12 @@ plotSiberObject(siber.example,
   
   # You can add more ellipses by directly calling plot.group.ellipses()
   # Add an additional p.interval % prediction ellilpse
-  plotGroupEllipses(siber.example, n = 100, p.interval = 0.95,
+  plotGroupEllipses(siber.example, n = 10000, p.interval = 0.95,
                     lty = 1, lwd = 2)
   
   # or you can add the XX% confidence interval around the bivariate means
   # by specifying ci.mean = T along with whatever p.interval you want.
-  plotGroupEllipses(siber.example, n = 100, p.interval = 0.95, ci.mean = T,
+  plotGroupEllipses(siber.example, n = 10000, p.interval = 0.95, ci.mean = T,
                     lty = 1, lwd = 2)
   
   
@@ -240,7 +511,7 @@ plotSiberObject(siber.example,
   points(1:ncol(SEA.B), group.ML[3,], col="red", pch = "x", lwd = 2)
   
   # Calculate some credible intervals 
-  cr.p <- c(0.95, 0.99) # vector of quantiles
+  cr.p <- c(0.90, 0.95, 0.99) # vector of quantiles
   
   # call to hdrcde:hdr using lapply()
   SEA.B.credibles <- lapply(
@@ -265,6 +536,7 @@ plotSiberObject(siber.example,
   
 # SIBER ANALYSIS VISUALIZATION -----
 
+  # Visualise the first community
   siberDensityPlot(layman.B[[1]], xticklabels = colnames(layman.B[[1]]), 
                    bty="L", ylim = c(0,6))
   
@@ -279,7 +551,6 @@ plotSiberObject(siber.example,
   
 
   # Visualise the second community
-
   siberDensityPlot(layman.B[[2]], xticklabels = colnames(layman.B[[2]]), 
                    bty="L", ylim = c(0,6))
   
@@ -301,7 +572,7 @@ plotSiberObject(siber.example,
   
   siberDensityPlot(cbind(layman.B[[1]][,"TA"], layman.B[[2]][,"TA"]),
                    xticklabels = c("Community 1", "Community 2"), 
-                   bty="L", ylim = c(0,3),
+                   bty="L", ylim = c(0,2),
                    las = 1,
                    ylab = "TA - Convex Hull Area",
                    xlab = "")
@@ -497,8 +768,8 @@ plotSiberObject(siber.example,
         for (e2 in (e1+1):nbel) 
         {
           # names of elements
-          nmel1<-nmel[e1] ; eval(parse(text=paste("tit1<-tit_",nmel1,sep="") ) )
-          nmel2<-nmel[e2] ; eval(parse(text=paste("tit2<-tit_",nmel2,sep="") ) )
+          nmel1<-nmel[e1] ; eval(parse(text=paste("tit1<-tit_",nmel1,sep="_") ) )
+          nmel2<-nmel[e2] ; eval(parse(text=paste("tit2<-tit_",nmel2,sep="_") ) )
           nmel12<-c(nmel1,nmel2)
           
           # creating jpeg file
@@ -714,4 +985,6 @@ plotSiberObject(siber.example,
   #Output, separated by urban class.
   High_IDiv_Metric <- IDiversity(cons=IDiv_Data_HighUrban)
   Low_IDiv_Metric <- IDiversity(cons=IDiv_Data_LowUrban)
+  
+  
   
