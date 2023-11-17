@@ -14,6 +14,9 @@
 #install.packages("ggbeeswarm")
 #install.packages("gghalves")
 #install.packages("agricolae")
+#install.packages("bayesanova")
+#install.packages("Bolstad")
+#install.packages("BayesFactor")
 
 
 
@@ -36,6 +39,9 @@ library(ggbeeswarm)    ## beeswarm plots
 library(gghalves)      ## off-set jitter
 library(systemfonts)
 library(agricolae)
+library(bayesanova)
+library(Bolstad)
+library(BayesFactor) 
 
 
 # Data Import -----
@@ -414,6 +420,13 @@ ggsave(filename = "Figures/figureone.jpg", width = 12, height = 8, device='jpeg'
       range_scale = .3, 
       alpha = .5, size = 3) + facet_wrap(~community)
   
+  
+###
+#
+# How to report bayesian stats correctly : https://www.nature.com/articles/s41562-021-01177-7/tables/1
+#
+##
+  
 # SIBER ANALYSIS ----
   
   #RESOURCE: https://cran.r-project.org/web/packages/SIBER/vignettes/Introduction-to-SIBER.html
@@ -612,7 +625,7 @@ plotSiberObject(siber.example,
   
   
 # SIBER ANALYSIS VISUALIZATION -----
-# Stats + Visualize SEA using ggplot -----
+# Visualize SEA using ggplot -----
   SEA_DF <- as.data.frame(SEA.B) %>% rename(High_Urban.Collembola = V1,
                              High_Urban.Oribatida = V2,
                              High_Urban.Mesostigmata = V3,
@@ -661,21 +674,42 @@ plotSiberObject(siber.example,
  
  
  
-#Stats for comparing ellipse size and overlap using bayesian techniques ---- 
-  # https://cran.r-project.org/web/packages/SIBER/vignettes/siber-comparing-populations.html#:~:text=In%20order%20to%20test%20whether,which%20is%20smaller%20in%20magnitude.
- 
- #What is the likelihood that High Urban Collembola communities have a smaller trophic envelope?
- High_C.Low_C <- sum( SEA_DF[,1] < SEA.B[,6] ) / nrow(SEA.B)
- print(High_C.Low_C) # 83.36%; this means urban Collembola likely have a smaller trophic niche
- 
- #What is the likelihood that High Urban Oribatid communities have a smaller trophic envelope?
- High_O.Low_O <- sum( SEA_DF[,2] < SEA.B[,4] ) / nrow(SEA.B)
- print(High_O.Low_O) # 86.52%; this means urban Oribatids likely have a smaller trophic niche
- 
- #What is the likelihood that High Urban Mesostigmata communities have a smaller trophic envelope?
- High_M.Low_M <- sum( SEA_DF[,3] < SEA.B[,5] ) / nrow(SEA.B)
- print(High_M.Low_M) # 20.14%; seemingly, this means urban Mesostigs have a larger trophic niche
+# Stats for comparing ellipse size and overlap using bayesian techniques ---- 
+SEA_DF_bind$Community <- as.factor(SEA_DF_bind$Community)
+SEA_DF_bind$Taxa <- as.factor(SEA_DF_bind$Taxa)
+ # kind of a dead end with Bayesian ANOVA, but I am working on it... https://journal.r-project.org/articles/RJ-2022-009/RJ-2022-009.pdf
+Bayes.aov <- anovaBF(values ~ Community, data = SEA_DF_bind)
+summary(Bayes.aov)
   
+
+
+# https://cran.r-project.org/web/packages/SIBER/vignettes/siber-comparing-populations.html#:~:text=In%20order%20to%20test%20whether,which%20is%20smaller%20in%20magnitude.
+ 
+       #What is the likelihood that High Urban Collembola communities have a smaller trophic envelope?
+       High_C.Low_C <- sum(SEA_DF[,1] < SEA.B[,6] ) / nrow(SEA.B)
+       print(High_C.Low_C) # 83.36%; this means urban Collembola likely have a smaller trophic niche
+       
+       #What is the likelihood that High Urban Oribatid communities have a smaller trophic envelope?
+       High_O.Low_O <- sum(SEA_DF[,2] < SEA.B[,4] ) / nrow(SEA.B)
+       print(High_O.Low_O) # 86.52%; this means urban Oribatids likely have a smaller trophic niche
+       
+       #What is the likelihood that High Urban Mesostigmata communities have a smaller trophic envelope?
+       High_M.Low_M <- sum(SEA_DF[,3] < SEA.B[,5] ) / nrow(SEA.B)
+       print(High_M.Low_M) # 20.14%; seemingly, this means urban Mesostigs have a larger trophic niche
+        
+       
+ #Now calculate overlap in envelope
+ 
+       overlap.High_C.Low_C <- maxLikOverlap("High_Urban.Collembola", "Low_Urban.Collembola", siber.example, p = 0.95, n =)
+       overlap.High_O.Low_O <- maxLikOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", siber.example, p = 0.95, n =)
+       overlap.High_M.Low_M <- maxLikOverlap("High_Urban.Mesostigmata", "Low_Urban.Mesostigmata", siber.example, p = 0.95, n =)
+       
+ 
+ 
+ SEA_DF
+ 
+ 
+ 
   
   # Visualise the first community
   siberDensityPlot(layman.B[[1]], xticklabels = colnames(layman.B[[1]]), 
