@@ -51,8 +51,6 @@ library(agricolae)
   
 # Traditional Stats for isotopes----
 
-  
-
 
 #analyze by urban group only  
   #significant difference in ∆C -> p = 0.0131
@@ -86,7 +84,74 @@ library(agricolae)
   
   
 # Traditional stats plot ---- 
+  #Plot All ∆C in one plot
+    TOTALC <-My_SIBER_Data %>%
+    ggplot(aes(x=group, y=iso1, fill = community, color = community)) +
+    geom_boxplot(
+      width = .2, fill = "white",
+      size = 0.8) +
+    
+    ggdist::stat_halfeye(
+      adjust = .33,## bandwidth
+      alpha = 0.5,
+      width = .3, 
+      color = NA, ## remove slab interval
+      position = position_nudge(x = .15)) + 
+    theme_classic() + 
+    theme(legend.position = "none",
+          axis.title.y = element_text(size = 16),
+          axis.text.x = element_text(face="bold", 
+                                     size=14),
+          axis.text.y = element_text(face="bold", 
+                                     size=14))+
+    scale_color_manual(values = Urban_Color_Palette)+ 
+    scale_fill_manual(values = Urban_Color_Palette) + 
+    ylab("∆13C (‰)") + xlab("")
+  
+  #Plot All ∆N in one plot
+  TOTALN <-My_SIBER_Data %>%
+    ggplot(aes(x=group, y=iso2, fill = community, color = community)) +
+    geom_boxplot(
+      width = .2, fill = "white",
+      size = 0.8) +
+    
+    ggdist::stat_halfeye(
+      adjust = .33, ## bandwidth
+      alpha = 0.5,
+      width = .3, 
+      color = NA, ## remove slab interval
+      position = position_nudge(x = .15)) + 
+    theme_classic() + 
+    theme(legend.position = "none",
+          axis.title.y = element_text(size = 16),
+          axis.text.x = element_text(face="bold", 
+                                     size=14),
+          axis.text.y = element_text(face="bold", 
+                                     size=14))+
+    scale_color_manual(values = Urban_Color_Palette)+ 
+    scale_fill_manual(values = Urban_Color_Palette) + 
+    ylab("∆15N (‰)") + xlab("")
+  
+  
+  Figure1_Alt <- ggarrange(TOTALC, TOTALN,
+            labels = "A", "B")
+            #nrow = 1, ncol = 2,
+            #common.legend = TRUE, 
+            #legend = "bottom")
 
+ ggsave(filename = "Figures/figureone_Alt.jpg", width = 10, height = 5, device='jpeg', dpi=400)
+  
+  
+  
+#
+#
+#
+#
+#
+#
+#
+#Make individual plots for each taxa.
+#
 # Plot isotope breadth in collembola
  Collembola_Data <-My_SIBER_Data %>% 
     filter(group == "Collembola") %>% 
@@ -556,15 +621,51 @@ plotSiberObject(siber.example,
                              Low_Urban.Collembola = V6)
   
  SEA_DF_bind <- stack(SEA_DF[1:6])
- SEA_DF_bind$ind <- as.character(SEA_DF_bind$ind )
+ SEA_DF_bind$ind <- as.character(SEA_DF_bind$ind)
+ SEA_DF_bind <- SEA_DF_bind %>% separate(ind, c('Community','X','Taxa'))
+ 
+ SEA_DF_bind<- SEA_DF_bind %>% select(-X)
+ 
+ #FINAL PLOT
+ SEA_interval <- 
+   ggplot(SEA_DF_bind, aes(x = Taxa, y = values)) +
+   ggdist::stat_interval(
+     .width = c(.5, 0.9, .95, 1), 
+     size = 4
+   ) +
+   ggdist::stat_halfeye(
+     adjust = .33, ## bandwidth
+     width = .7, fill = "grey85",
+     interval_colour = NA, stroke = 1.5, 
+     point_colour = "black", shape = 23, point_size = 5, point_fill = "white",
+     position = position_nudge(x = .05),
+     aes(thickness = stat(f*n))) + 
+#THEME AND COLOR
+ scale_color_viridis_d(
+   option = "mako", name = "Level:", direction = -1, 
+   begin = .15, end = .9
+ ) +
+   guides(color = guide_legend(reverse = TRUE, title.position = "top")) +
+   theme_classic() + 
+   facet_wrap(~Community) + ylab("Standard Ellipse Area") + xlab("")
+ 
+ 
+ 
+ SEA_interval
+ 
+ ggsave(filename = "Figures/figureFour.jpg", width = 8, height = 4, device='jpeg', dpi=400)
+ 
+ 
+ 
+ 
+ 
  
  #####
  ##### figure out how to reverse concatenate treatment cell to make graph
  ##### then use the interval strip box plot https://z3tt.github.io/beyond-bar-and-box-plots/
  #####
  #####
-  
-  
+ 
   
   
   # Visualise the first community
