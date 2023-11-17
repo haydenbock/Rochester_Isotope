@@ -612,7 +612,7 @@ plotSiberObject(siber.example,
   
   
 # SIBER ANALYSIS VISUALIZATION -----
- #Visualize SEA using ggplot. 
+# Stats + Visualize SEA using ggplot -----
   SEA_DF <- as.data.frame(SEA.B) %>% rename(High_Urban.Collembola = V1,
                              High_Urban.Oribatida = V2,
                              High_Urban.Mesostigmata = V3,
@@ -625,6 +625,7 @@ plotSiberObject(siber.example,
  SEA_DF_bind <- SEA_DF_bind %>% separate(ind, c('Community','X','Taxa'))
  
  SEA_DF_bind<- SEA_DF_bind %>% select(-X)
+ 
  
  #FINAL PLOT
  SEA_interval <- 
@@ -660,12 +661,20 @@ plotSiberObject(siber.example,
  
  
  
- #####
- ##### figure out how to reverse concatenate treatment cell to make graph
- ##### then use the interval strip box plot https://z3tt.github.io/beyond-bar-and-box-plots/
- #####
- #####
+#Stats for comparing ellipse size and overlap using bayesian techniques ---- 
+  # https://cran.r-project.org/web/packages/SIBER/vignettes/siber-comparing-populations.html#:~:text=In%20order%20to%20test%20whether,which%20is%20smaller%20in%20magnitude.
  
+ #What is the likelihood that High Urban Collembola communities have a smaller trophic envelope?
+ High_C.Low_C <- sum( SEA_DF[,1] < SEA.B[,6] ) / nrow(SEA.B)
+ print(High_C.Low_C) # 83.36%; this means urban Collembola likely have a smaller trophic niche
+ 
+ #What is the likelihood that High Urban Oribatid communities have a smaller trophic envelope?
+ High_O.Low_O <- sum( SEA_DF[,2] < SEA.B[,4] ) / nrow(SEA.B)
+ print(High_O.Low_O) # 86.52%; this means urban Oribatids likely have a smaller trophic niche
+ 
+ #What is the likelihood that High Urban Mesostigmata communities have a smaller trophic envelope?
+ High_M.Low_M <- sum( SEA_DF[,3] < SEA.B[,5] ) / nrow(SEA.B)
+ print(High_M.Low_M) # 20.14%; seemingly, this means urban Mesostigs have a larger trophic niche
   
   
   # Visualise the first community
