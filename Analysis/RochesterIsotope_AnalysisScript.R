@@ -17,9 +17,11 @@
 #install.packages("bayesanova")
 #install.packages("Bolstad")
 #install.packages("BayesFactor")
+#install.packages("coda")
+#install.packages("bayesplot")
 
-
-
+library(bayesplot)
+library(coda)
 library(ggpubr)
 library(rjags)
 library(dplyr)
@@ -584,10 +586,14 @@ plotSiberObject(siber.example,
   
   
   ellipses.posterior <- siberMVN(siber.example, parms, priors)
+  summary(ellipses.posterior)
   
   # The posterior estimates of the ellipses for each group can be used to
   # calculate the SEA.B for each group.
+  My_SIBER_Data %>% filter(group == "Mesostigmata")
+
   SEA.B <- siberEllipses(ellipses.posterior)
+  
   
   siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
                    xlab = c("Community | Group"),
