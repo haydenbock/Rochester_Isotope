@@ -72,9 +72,12 @@ library(BayesFactor)
   
 #analyze by urban group and taxa 
   #urban community is significant, but no difference in taxa or interaction.
-  InteractionAOV_C <- aov(iso1~community*group, data = My_SIBER_Data) #iso1 = ∆C 
+  
+  My_SIBER_Data <- My_SIBER_Data %>% unite(Trt, c("group", "community"))
+  InteractionAOV_C <- aov(iso1~Trt, data = My_SIBER_Data) #iso1 = ∆C 
   summary(InteractionAOV_C)
   TukeyHSD(InteractionAOV_C)
+  result <- HSD.test(InteractionAOV_C, trt = "Trt")
 
   #no difference in urbanization, but significantly different by taxa. no interaction.
   InteractionAOV_N <- aov(iso2~community*group, data = My_SIBER_Data) #iso1 = ∆C 
@@ -586,13 +589,11 @@ plotSiberObject(siber.example,
   
   
   ellipses.posterior <- siberMVN(siber.example, parms, priors)
-  summary(ellipses.posterior)
-  
+
   # The posterior estimates of the ellipses for each group can be used to
   # calculate the SEA.B for each group.
-  My_SIBER_Data %>% filter(group == "Mesostigmata")
 
-  SEA.B <- siberEllipses(ellipses.posterior)
+  SEA.B <- siberEllipses(siber.example, post = ellipses.posterior)
   
   
   siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
@@ -628,6 +629,12 @@ plotSiberObject(siber.example,
   
   # calculate the corresponding distribution of layman metrics
   layman.B <- bayesianLayman(mu.post)
+  
+  #calculate max likelihood of ellipse overlap
+  
+  
+  
+  
   
   
 # SIBER ANALYSIS VISUALIZATION -----
@@ -706,7 +713,7 @@ summary(Bayes.aov)
        
  #Now calculate overlap in envelope
  
-       overlap.High_C.Low_C <- maxLikOverlap("High_Urban.Collembola", "Low_Urban.Collembola", siber.example, p = 0.95, n =)
+       overlap.High_C.Low_C <- maxLikOverlap("High_Urban.Collembola", "Low_Urban.Collembola", siber.example, p = 0.95, n = 1000, do.plot = TRUE)
        overlap.High_O.Low_O <- maxLikOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", siber.example, p = 0.95, n =)
        overlap.High_M.Low_M <- maxLikOverlap("High_Urban.Mesostigmata", "Low_Urban.Mesostigmata", siber.example, p = 0.95, n =)
        
