@@ -62,17 +62,29 @@ library(BayesFactor)
 
 #Both isotopes are non-normal, so we should use a Kruskal-wallis test  
 shapiro.test(My_SIBER_Data$iso1)
-shapiro.test(My_SIBER_Data$iso2) 
+shapiro.test(My_SIBER_Data$iso2)
+
+
 
 #make a combined treatment column if necessary
 # My_SIBER_Data <- My_SIBER_Data %>% unite(Trt, c("group", "community"))
 # My_SIBER_Data$Trt <- as.factor(My_SIBER_Data$Trt)
-  
-#Things are significant!
+ 
+
+#Urban by itself: Things are significant!
+UrbanKW_C.Community <- with(My_SIBER_Data,kruskal(iso1,community,group=TRUE,console=TRUE))
+C_SE.Community <- UrbanKW_C.Community$means$std/sqrt(UrbanKW_C.Community$means$r)
+
+UrbanKW_N.Community <- with(My_SIBER_Data,kruskal(iso2,community,group=TRUE,console=TRUE))
+N_SE.Community <- UrbanKW_N.Community$means$std/sqrt(UrbanKW_N.Community$means$r)
+
+
+#INTERACTION: Things are significant!
 UrbanKW_C <- with(My_SIBER_Data,kruskal(iso1,interaction(group,community),group=TRUE,console=TRUE))
+C_SE <- UrbanKW_C$means$std/sqrt(UrbanKW_C$means$r)
 
 UrbanKW_N <- with(My_SIBER_Data,kruskal(iso2,interaction(group,community),group=TRUE,console=TRUE))
-  
+N_SE <- UrbanKW_N$means$std/sqrt(UrbanKW_N$means$r)  
 
 
 
