@@ -60,40 +60,23 @@ library(BayesFactor)
 # Traditional Stats for isotopes----
 
 
-#analyze by urban group only  
-  #significant difference in ∆C -> p = 0.0131
-  UrbanAOV_C <- aov(iso1~community, data = My_SIBER_Data) #iso1 = ∆C 
-  summary(UrbanAOV_C)
-  
-  #no significant difference in ∆N -> p = 0.821
-  UrbanAOV_N <- aov(iso2~community, data = My_SIBER_Data) #iso1 = ∆C 
-  summary(UrbanAOV_N)
+#Both isotopes are non-normal, so we should use a Kruskal-wallis test  
+shapiro.test(My_SIBER_Data$iso1)
+shapiro.test(My_SIBER_Data$iso2) 
 
+#make a combined treatment column if necessary
+# My_SIBER_Data <- My_SIBER_Data %>% unite(Trt, c("group", "community"))
+# My_SIBER_Data$Trt <- as.factor(My_SIBER_Data$Trt)
   
-#analyze by urban group and taxa 
-  #urban community is significant, but no difference in taxa or interaction.
-  
-  My_SIBER_Data <- My_SIBER_Data %>% unite(Trt, c("group", "community"))
-  InteractionAOV_C <- aov(iso1~Trt, data = My_SIBER_Data) #iso1 = ∆C 
-  summary(InteractionAOV_C)
-  TukeyHSD(InteractionAOV_C)
-  result <- HSD.test(InteractionAOV_C, trt = "Trt")
+#Things are significant!
+UrbanKW_C <- with(My_SIBER_Data,kruskal(iso1,interaction(group,community),group=TRUE,console=TRUE))
 
-  #no difference in urbanization, but significantly different by taxa. no interaction.
-  InteractionAOV_N <- aov(iso2~community*group, data = My_SIBER_Data) #iso1 = ∆C 
-  summary(InteractionAOV_N)
-  TukeyHSD(InteractionAOV_N)
+UrbanKW_N <- with(My_SIBER_Data,kruskal(iso2,interaction(group,community),group=TRUE,console=TRUE))
+  
 
-  
-  
-  
-  
-  Collembola_Data <-My_SIBER_Data %>% 
-    filter(group == "Collembola") %>% 
-    select(-group) %>% 
-    pivot_wider(names_from = My_SIBER_Data$community, values)
-  
-  
+
+
+
 # Traditional stats plot ---- 
   #Plot All ∆C in one plot
     TOTALC <-My_SIBER_Data %>%
@@ -373,7 +356,7 @@ Figure1 <- ggarrange(Col_C,
           Col_N,
           Orib_N,
           Meso_N,
-  labels = c("A", "B", "C", "D", "E", "F"),
+  labels = c("1", "2", "3", "4", "5", "6"),
   common.legend = TRUE, legend = "bottom")
 
 ggsave(filename = "Figures/figureone.jpg", width = 12, height = 8, device='jpeg', dpi=400)
