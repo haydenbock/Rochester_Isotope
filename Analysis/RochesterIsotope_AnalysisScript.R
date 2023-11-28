@@ -588,8 +588,9 @@ plotSiberObject(siber.example,
   # The posterior estimates of the ellipses for each group can be used to
   # calculate the SEA.B for each group.
 
-  SEA.B <- siberEllipses(siber.example, post = ellipses.posterior)
-  
+  SEA.B <- siberEllipses(ellipses.posterior$)
+                         
+                       
   
   siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
                    xlab = c("Community | Group"),
@@ -603,7 +604,7 @@ plotSiberObject(siber.example,
   points(1:ncol(SEA.B), group.ML[3,], col="red", pch = "x", lwd = 2)
   
   # Calculate some credible intervals 
-  cr.p <- c(0.90, 0.95, 0.99) # vector of quantiles
+  cr.p <- c( 0.975, 0.99) # vector of quantiles
   
   # call to hdrcde:hdr using lapply()
   SEA.B.credibles <- lapply(
@@ -611,12 +612,57 @@ plotSiberObject(siber.example,
     function(x,...){tmp<-hdrcde::hdr(x)$hdr},
     prob = cr.p)
   
+  print(SEA.B.credibles)
+  
   # do similar to get the modes, taking care to pick up multimodal posterior
   # distributions if present
   SEA.B.modes <- lapply(
     as.data.frame(SEA.B), 
     function(x,...){tmp<-hdrcde::hdr(x)$mode},
     prob = cr.p, all.modes=T)
+  
+  print(SEA.B.modes)
+  
+  
+  
+  
+  #Here, we first calculate the proportion, and hence probability, of the SEA.B for group 1 being smaller than the SEA.B for group 2.
+  
+  #High urban vs. low urban collembola; 83.55% likelihood of high urban SEA being smaller.
+  hc.vs.lc <- sum( SEA.B[,1] < SEA.B[,6] ) / nrow(SEA.B)
+  print(hc.vs.lc)
+  
+  #High urban vs. low urban oribatida; 86.54% likelihood of high urban SEA being smaller.
+  ho.vs.lo <- sum( SEA.B[,2] < SEA.B[,4] ) / nrow(SEA.B)
+  print(ho.vs.lo)
+  
+  #High urban vs. low urban Mesostigmata; 19.82% likelihood of high urban SEA being smaller.
+  hm.vs.lm <- sum( SEA.B[,3] < SEA.B[,5] ) / nrow(SEA.B)
+  print(hm.vs.lm)
+  
+  
+  
+  
+  
+  #now compare SEA using kruskal wallis testing.----- 
+  
+  
+  SEA <- read_csv("SEA_DF_bind.csv")
+  CollembolaSEA <- with(SEA,kruskal(values,ind,group=TRUE,console=TRUE))
+  CollembolaSEA.SE <- CollembolaSEA$means$std/sqrt(CollembolaSEA$means$r)
+
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   
   # extract the posterior means
