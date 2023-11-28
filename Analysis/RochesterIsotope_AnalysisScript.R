@@ -644,9 +644,9 @@ plotSiberObject(siber.example,
   
   
   
-  #now compare SEA using kruskal wallis testing.----- 
+  #now compare SEA of organisms using kruskal wallis testing.----- 
   
-  
+  #analyze ellipse size
   SEA <- read_csv("SEA_DF_bind.csv")
   CollembolaSEA <- with(SEA,kruskal(values,ind,group=TRUE,console=TRUE))
   CollembolaSEA.SE <- CollembolaSEA$means$std/sqrt(CollembolaSEA$means$r)
@@ -654,27 +654,38 @@ plotSiberObject(siber.example,
   
   
   
+  #Now calculate ellipse overlap
+  overlap.High_C.Low_C <- maxLikOverlap("High_Urban.Collembola", "Low_Urban.Collembola", siber.example, p = 0.95, n = 1000, do.plot = TRUE)
+  overlap.High_O.Low_O <- maxLikOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", siber.example, p = 0.95, n =)
+  overlap.High_M.Low_M <- maxLikOverlap("High_Urban.Mesostigmata", "Low_Urban.Mesostigmata", siber.example, p = 0.95, n =)
+  
+  
+  #One can instead calculate a distribution of overlap based on the posterior distributions of the fitted ellipses.
+  #https://cran.r-project.org/web/packages/SIBER/vignettes/siber-comparing-populations.html
+  
+  #Collembola
+  bayes.overlap.HC.LC <- bayesianOverlap("High_Urban.Collembola", "Low_Urban.Collembola", ellipses.posterior, 
+                                         draws = 10, p.interval = 0.95,
+                                         n = 360)
+  print(bayes.overlap.HC.LC)
+  
+  
+  #Oribatida
+  bayes.overlap.HO.LO <- bayesianOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", ellipses.posterior, 
+                                         draws = 10, p.interval = 0.95,
+                                         n = 360)
+  print(bayes.overlap.HO.LO)
+  
+  #Mesostigmata
+  bayes.overlap.HM.LM <- bayesianOverlap("High_Urban.Mesostigmata", "Low_Urban.Mesostigmata", ellipses.posterior, 
+                                         draws = 10, p.interval = 0.95,
+                                         n = 360)
+  print(bayes.overlap.HM.LM)  
   
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  # extract the posterior means
-  mu.post <- extractPosteriorMeans(siber.example, ellipses.posterior)
-  
-  # calculate the corresponding distribution of layman metrics
-  layman.B <- bayesianLayman(mu.post)
-  
-  #calculate max likelihood of ellipse overlap
-  
-  
-  
+
   
   
   
