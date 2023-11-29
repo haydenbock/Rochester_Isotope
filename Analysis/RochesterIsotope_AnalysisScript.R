@@ -560,7 +560,7 @@ plotSiberObject(siber.example,
   
   # Calculate the various Layman metrics on each of the communities.
   community.ML <- communityMetricsML(siber.example) 
-  
+ 
   #print out of layman metrics
   print(community.ML)
   
@@ -588,9 +588,7 @@ plotSiberObject(siber.example,
   # The posterior estimates of the ellipses for each group can be used to
   # calculate the SEA.B for each group.
 
-  SEA.B <- siberEllipses(ellipses.posterior$)
-                         
-                       
+  SEA.B <- siberEllipses(grou)
   
   siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
                    xlab = c("Community | Group"),
@@ -604,7 +602,7 @@ plotSiberObject(siber.example,
   points(1:ncol(SEA.B), group.ML[3,], col="red", pch = "x", lwd = 2)
   
   # Calculate some credible intervals 
-  cr.p <- c( 0.975, 0.99) # vector of quantiles
+  cr.p <- c( 0.975) # vector of quantiles
   
   # call to hdrcde:hdr using lapply()
   SEA.B.credibles <- lapply(
@@ -669,6 +667,7 @@ plotSiberObject(siber.example,
                                          n = 360)
   print(bayes.overlap.HC.LC)
   
+  bayes.overlap.HC.LC %>% pivot_longer()
   
   #Oribatida
   bayes.overlap.HO.LO <- bayesianOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", ellipses.posterior, 
@@ -953,6 +952,10 @@ summary(Bayes.aov)
   
   #
 
+  
+  
+  
+  
 # [WORK IN PROGRESS] Calculate Isotope Diversity Indices based on Cucherousset & Villeger script/Paper ----
 
   #load libraries
