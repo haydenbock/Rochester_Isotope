@@ -588,7 +588,7 @@ plotSiberObject(siber.example,
   # The posterior estimates of the ellipses for each group can be used to
   # calculate the SEA.B for each group.
 
-  SEA.B <- siberEllipses(grou)
+  SEA.B <- siberEllipses(ellipses.posterior)
   
   siberDensityPlot(SEA.B, xticklabels = colnames(group.ML), 
                    xlab = c("Community | Group"),
@@ -621,7 +621,12 @@ plotSiberObject(siber.example,
   
   print(SEA.B.modes)
   
+  SEA.B.median <- lapply(
+    as.data.frame(SEA.B), 
+    function(x,...){tmp<-hdrcde::hdr(x)$mode},
+    prob = cr.p, all.medians = T)
   
+  print(SEA.B.median)
   
   
   #Here, we first calculate the proportion, and hence probability, of the SEA.B for group 1 being smaller than the SEA.B for group 2.
@@ -661,30 +666,184 @@ plotSiberObject(siber.example,
   #One can instead calculate a distribution of overlap based on the posterior distributions of the fitted ellipses.
   #https://cran.r-project.org/web/packages/SIBER/vignettes/siber-comparing-populations.html
   
-  #Collembola
+  
+  cr.p <- c( 0.975) # vector of quantiles
+
+ 
+# Collembola overlap----
   bayes.overlap.HC.LC <- bayesianOverlap("High_Urban.Collembola", "Low_Urban.Collembola", ellipses.posterior, 
                                          draws = 10, p.interval = 0.95,
                                          n = 360)
   print(bayes.overlap.HC.LC)
+ 
+  #calculate Credible intervals of overlap
+  HC.LC.credibles <- lapply(
+    as.data.frame(bayes.overlap.HC.LC), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
   
-  bayes.overlap.HC.LC %>% pivot_longer()
+  HC.LC.credibles
   
-  #Oribatida
+  #Calculate percentage overlap
+  
+  #percentage of high-urban collembola community that overlaps with low urban
+  prop.of.high.overlaps.low.HC.LC <- bayes.overlap.HC.LC$overlap / bayes.overlap.HC.LC$area1
+  print(prop.of.high.overlaps.low.HC.LC)
+  print(mean(prop.of.high.overlaps.low.HC.LC)) #mean
+  print(sd(prop.of.high.overlaps.low.HC.LC)/sqrt(10)) #se
+
+  HC.LC.percent.credibles.h.l <- lapply(
+    as.data.frame(prop.of.high.overlaps.low.HC.LC), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HC.LC.percent.credibles.h.l
+  
+  
+  #percentage of low-urban collembola community that overlaps with high urban
+  prop.of.low.overlaps.high.HC.LC <- bayes.overlap.HC.LC$overlap / bayes.overlap.HC.LC$area2
+  print(prop.of.low.overlaps.high.HC.LC)
+  print(mean(prop.of.low.overlaps.high.HC.LC)) #mean
+  print(sd(prop.of.low.overlaps.high.HC.LC)/sqrt(10)) #se
+  
+  HC.LC.percent.credibles.l.h <- lapply(
+    as.data.frame(prop.of.low.overlaps.high.HC.LC), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HC.LC.percent.credibles.l.h
+ 
+  
+  #percentage of both that overlap with each other
+  prop.of.both.HC.LC <- bayes.overlap.HC.LC$overlap / bayes.overlap.HC.LC$area1 + bayes.overlap.HC.LC$area2
+  print(mean(prop.of.both.HC.LC)) #mean
+  print(sd(prop.of.both.HC.LC)/sqrt(10)) #se
+  
+  HC.LC.percent.credibles.both <- lapply(
+    as.data.frame(prop.of.both.HC.LC), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HC.LC.percent.credibles.both
+  
+# Oribatida overlap-----
   bayes.overlap.HO.LO <- bayesianOverlap("High_Urban.Oribatid", "Low_Urban.Oribatid", ellipses.posterior, 
                                          draws = 10, p.interval = 0.95,
                                          n = 360)
   print(bayes.overlap.HO.LO)
   
-  #Mesostigmata
+  #calculate Credible intervals of overlap
+  HO.LO.credibles <- lapply(
+    as.data.frame(bayes.overlap.HO.LO), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HO.LO.credibles
+  
+  #Calculate percentage overlap
+  
+  #percentage of high-urban oribatida community that overlaps with low urban
+  prop.of.high.overlaps.low.HO.LO <- bayes.overlap.HO.LO$overlap / bayes.overlap.HO.LO$area1
+  print(prop.of.high.overlaps.low.HO.LO)
+  print(mean(prop.of.high.overlaps.low.HO.LO)) #mean
+  print(sd(prop.of.high.overlaps.low.HO.LO)/sqrt(10)) #se
+  
+  HO.LO.percent.credibles.h.l <- lapply(
+    as.data.frame(prop.of.high.overlaps.low.HO.LO), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HO.LO.percent.credibles.h.l
+  
+  
+  #percentage of low-urban collembola community that overlaps with high urban
+  prop.of.low.overlaps.high.HO.LO <- bayes.overlap.HO.LO$overlap / bayes.overlap.HO.LO$area2
+  print(prop.of.low.overlaps.high.HO.LO)
+  print(mean(prop.of.low.overlaps.high.HO.LO)) #mean
+  print(sd(prop.of.low.overlaps.high.HO.LO)/sqrt(10)) #se
+  
+  HO.LO.percent.credibles.l.h <- lapply(
+    as.data.frame(prop.of.low.overlaps.high.HO.LO), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HO.LO.percent.credibles.l.h
+  
+  
+  #percentage of both that overlap with each other
+  prop.of.both.HO.LO <- bayes.overlap.HO.LO$overlap / bayes.overlap.HO.LO$area1 + bayes.overlap.HO.LO$area2
+  print(mean(prop.of.both.HO.LO)) #mean
+  print(sd(prop.of.both.HO.LO)/sqrt(10)) #se
+  
+  HO.LO.percent.credibles.both <- lapply(
+    as.data.frame(prop.of.both.HO.LO), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HO.LO.percent.credibles.both
+  
+  
+  
+  
+  
+  
+  
+  
+# Mesostigmata overlap ----
   bayes.overlap.HM.LM <- bayesianOverlap("High_Urban.Mesostigmata", "Low_Urban.Mesostigmata", ellipses.posterior, 
                                          draws = 10, p.interval = 0.95,
                                          n = 360)
   print(bayes.overlap.HM.LM)  
   
+  #calculate Credible intervals of overlap
+  HM.LM.credibles <- lapply(
+    as.data.frame(bayes.overlap.HM.LM), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HM.LM.credibles
+  
+  #Calculate percentage overlap
+  
+  #percentage of high-urban oribatida community that overlaps with low urban
+  prop.of.high.overlaps.low.HM.LM <- bayes.overlap.HM.LM$overlap / bayes.overlap.HM.LM$area1
+  print(prop.of.high.overlaps.low.HM.LM)
+  print(mean(prop.of.high.overlaps.low.HM.LM)) #mean
+  print(sd(prop.of.high.overlaps.low.HM.LM)/sqrt(10)) #se
+  
+  HM.LM.percent.credibles.h.l <- lapply(
+    as.data.frame(prop.of.high.overlaps.low.HM.LM), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HM.LM.percent.credibles.h.l
   
   
+  #percentage of low-urban collembola community that overlaps with high urban
+  prop.of.low.overlaps.high.HM.LM <- bayes.overlap.HM.LM$overlap / bayes.overlap.HM.LM$area2
+  print(prop.of.low.overlaps.high.HM.LM)
+  print(mean(prop.of.low.overlaps.high.HM.LM)) #mean
+  print(sd(prop.of.low.overlaps.high.HM.LM)/sqrt(10)) #se
   
-
+  HM.LM.percent.credibles.l.h <- lapply(
+    as.data.frame(prop.of.low.overlaps.high.HM.LM), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HM.LM.percent.credibles.l.h
+  
+  
+  #percentage of both that overlap with each other
+  prop.of.both.HM.LM <- bayes.overlap.HM.LM$overlap / bayes.overlap.HM.LM$area1 + bayes.overlap.HM.LM$area2
+  print(mean(prop.of.both.HM.LM)) #mean
+  print(sd(prop.of.both.HM.LM)/sqrt(10)) #se
+  
+  HM.LM.percent.credibles.both <- lapply(
+    as.data.frame(prop.of.both.HM.LM), 
+    function(x,...){tmp<-hdrcde::hdr(x)$hdr},
+    prob = cr.p)
+  
+  HM.LM.percent.credibles.both
   
   
   
