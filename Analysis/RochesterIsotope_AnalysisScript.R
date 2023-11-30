@@ -643,8 +643,6 @@ plotSiberObject(siber.example,
   hm.vs.lm <- sum( SEA.B[,3] < SEA.B[,5] ) / nrow(SEA.B)
   print(hm.vs.lm)
   
-  xxx
-  
   
   
   #now compare SEA of organisms using kruskal wallis testing.----- 
