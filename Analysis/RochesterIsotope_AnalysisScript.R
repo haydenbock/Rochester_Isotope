@@ -20,6 +20,7 @@
 #install.packages("coda")
 #install.packages("bayesplot")
 
+library(brms)
 library(bayesplot)
 library(coda)
 library(ggpubr)
@@ -44,6 +45,8 @@ library(agricolae)
 library(bayesanova)
 library(Bolstad)
 library(BayesFactor) 
+library(bridgesampling)
+
 
 
 # Data Import -----
@@ -445,6 +448,8 @@ ggsave(filename = "Figures/figureone.jpg", width = 12, height = 8, device='jpeg'
   # load in the included demonstration dataset
   My_SIBER_Data <- read_csv("My_SIBER_Data.csv")
   My_SIBER_Data <- as_tibble(My_SIBER_Data)
+  My_SIBER_Data <- as.data.frame(My_SIBER_Data)
+  
   
   
   # create the siber object
@@ -668,6 +673,46 @@ plotSiberObject(siber.example,
   cr.p <- c( 0.975) # vector of quantiles
 
  
+  
+# Extract Bayes factor and posterior prob ----
+  
+  # Calculate the Bayes Factor for the full model against the null model
+  bf_result <- bayes_factor(ellipses.posterior)
+  
+  # Print the Bayes Factor result
+  print(bf_result)
+  
+  # Generate predicted probabilities for each treatment combination
+  bayesian_r2 <- bayes_R2(model) 
+  
+  # Print the Bayesian R^2
+  print(bayesian_r2)
+  
+  #Posterior probabilities + predictions
+  
+  posterior_probs <- posterior_epred(model, newdata = data)
+  
+  # The result is a matrix of posterior probabilities with rows corresponding to observations
+  # and columns to posterior samples. You can summarize this matrix to get mean probabilities
+  # and credible intervals, for example:
+  
+  # Calculate mean posterior probabilities
+  mean_posterior_probs <- apply(posterior_probs, 1, mean)
+  
+  # Optionally, calculate credible intervals
+  ci_lower <- apply(posterior_probs, 1, quantile, probs = 0.025)
+  ci_upper <- apply(posterior_probs, 1, quantile, probs = 0.975)
+  
+  # To add these probabilities back to your data frame for analysis or reporting
+  data$posterior_probability_mean <- mean_posterior_probs
+  data$ci_lower <- ci_lower
+  data$ci_upper <- ci_upper
+  
+  posterior_predict <- posterior_predict(model, newdata = data) 
+  predicted_probabilities <- colMeans(posterior_predict)
+  
+  # Convert to percentages
+  predicted_percentages <- predicted_probabilities * 100
 # Collembola overlap----
   bayes.overlap.HC.LC <- bayesianOverlap("High_Urban.Collembola", "Low_Urban.Collembola", ellipses.posterior, 
                                          draws = 10, p.interval = 0.95,
